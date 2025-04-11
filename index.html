@@ -102,28 +102,36 @@
 }
 
 
-    function login() {
-      const username = document.getElementById('loginUsername').value;
-      const password = document.getElementById('loginPassword').value;
+function login() {
+  const username = document.getElementById('loginUsername').value;
+  const password = document.getElementById('loginPassword').value;
 
-      fetch(`${backend}/login`, { // Adjust to your backend's actual endpoint
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      }).then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            userRole = data.role; // 'consumer' or 'creator'
-            document.getElementById('loginSection').style.display = 'none';
-            if (userRole === 'consumer') {
-              document.getElementById('consumerSection').style.display = 'block';
-              loadPhotos();
-            } else {
-              document.getElementById('creatorSection').style.display = 'block';
-            }
-          }
-        });
-    }
+  fetch(`${backend}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  }).then(res => res.json())
+    .then(data => {
+      if (data.success && data.token) {
+        // 🔐 Store token in localStorage
+        localStorage.setItem('token', data.token);
+
+        userRole = data.role;
+        document.getElementById('loginSection').style.display = 'none';
+        if (userRole === 'consumer') {
+          document.getElementById('consumerSection').style.display = 'block';
+          loadPhotos();
+        } else {
+          document.getElementById('creatorSection').style.display = 'block';
+        }
+      } else {
+        alert("Login failed: " + (data.error || "Unknown error"));
+      }
+    }).catch(err => {
+      alert("Login error: " + err.message);
+    });
+}
+
 
     function loadPhotos() {
       fetch(`${backend}/photos`)
@@ -167,26 +175,35 @@
     }
 
     function uploadPhoto() {
-      const file = document.getElementById("photoFile").files[0];
-      const title = document.getElementById("photoTitle").value;
-      const caption = document.getElementById("photoCaption").value;
-      const location = document.getElementById("photoLocation").value;
+  const file = document.getElementById("photoFile").files[0];
+  const title = document.getElementById("photoTitle").value;
+  const caption = document.getElementById("photoCaption").value;
+  const location = document.getElementById("photoLocation").value;
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", title);
-      formData.append("caption", caption);
-      formData.append("location", location);
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("title", title);
+  formData.append("caption", caption);
+  formData.append("location", location);
 
-      fetch(`${backend}/upload`, {
-        method: 'POST',
-        body: formData
-      }).then(res => res.json())
-        .then(data => {
-          alert(data.message);
-          loadUploadedPhotos();
-        });
-    }
+  const token = localStorage.getItem('token'); // 🔐 Get the token
+
+  fetch(`${backend}/upload`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}` // 👈 Send token
+    },
+    body: formData
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message);
+      loadUploadedPhotos();
+    })
+    .catch(err => {
+      alert("Upload error: " + err.message);
+    });
+}
 
     function loadUploadedPhotos() {
       fetch(`${backend}/photos`)
