@@ -1,4 +1,4 @@
-cosnole.log("creator.js loaded");
+console.log("creator.js loaded");
 const creatorBackend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
 
 document.addEventListener('DOMContentLoaded', function() {
