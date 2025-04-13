@@ -9,6 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   loadUploadedPhotos();
+  document.getElementById("uploadBtn").addEventListener("click", uploadPhoto);
+
 });
 
 function uploadPhoto() {
