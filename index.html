@@ -4,222 +4,863 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Photo Sharing App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <style>
-    img { width: 300px; margin: 10px; }
-    textarea, input { width: 300px; margin: 5px 0; display: block; }
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3f37c9;
+      --accent-color: #4cc9f0;
+      --light-color: #f8f9fa;
+      --dark-color: #212529;
+      --success-color: #4bb543;
+      --error-color: #ff3333;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      line-height: 1.6;
+      background-color: #f5f7fa;
+      color: var(--dark-color);
+      padding: 0;
+      margin: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: white;
+      padding: 20px 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    header h1 {
+      text-align: center;
+      font-size: 2.5rem;
+    }
+    
+    .auth-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 70vh;
+    }
+    
+    .auth-box {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      margin: 20px;
+    }
+    
+    .auth-box h3 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+    
+    .form-control {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+    
+    .form-control:focus {
+      outline: none;
+      border-color: var(--primary-color);
+    }
+    
+    .btn {
+      display: inline-block;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.3s;
+      width: 100%;
+    }
+    
+    .btn:hover {
+      background: var(--secondary-color);
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    
+    .text-center {
+      text-align: center;
+    }
+    
+    .mt-3 {
+      margin-top: 15px;
+    }
+    
+    .toggle-auth {
+      color: var(--primary-color);
+      cursor: pointer;
+      text-decoration: underline;
+    }
+    
+    /* Dashboard styles */
+    .dashboard {
+      display: none;
+      padding: 20px 0;
+    }
+    
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .search-bar {
+      flex-grow: 1;
+      max-width: 500px;
+      display: flex;
+    }
+    
+    .search-bar input {
+      flex-grow: 1;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px 0 0 5px;
+      font-size: 16px;
+    }
+    
+    .search-bar button {
+      padding: 10px 15px;
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 0 5px 5px 0;
+      cursor: pointer;
+    }
+    
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .photo-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+    
+    .photo-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .photo-card img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+    }
+    
+    .photo-info {
+      padding: 15px;
+    }
+    
+    .photo-info h3 {
+      margin-bottom: 5px;
+      color: var(--primary-color);
+    }
+    
+    .photo-meta {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+    
+    .photo-actions {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .photo-actions button {
+      flex: 1;
+      padding: 8px;
+      font-size: 14px;
+    }
+    
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .modal-content {
+      background: white;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+    }
+    
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .modal-header h3 {
+      color: var(--primary-color);
+    }
+    
+    .close-modal {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    .modal-body {
+      margin-bottom: 20px;
+    }
+    
+    .modal-photo {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      margin-bottom: 20px;
+    }
+    
+    .comments-section {
+      margin-top: 20px;
+    }
+    
+    .comment {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    
+    .comment-user {
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+    
+    .comment-text {
+      margin-top: 5px;
+    }
+    
+    .rating-section {
+      margin: 15px 0;
+    }
+    
+    .star-rating {
+      display: flex;
+      gap: 5px;
+      margin: 10px 0;
+    }
+    
+    .star-rating .star {
+      color: #ddd;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    
+    .star-rating .star.active {
+      color: gold;
+    }
+    
+    /* Creator specific styles */
+    .upload-form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    
+    .upload-form h4 {
+      margin-bottom: 15px;
+      color: var(--primary-color);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .photo-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+      
+      .dashboard-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+      
+      .search-bar {
+        max-width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>📸 Photo Sharing App</h1>
+  <header>
+    <h1>📸 Photo Sharing App</h1>
+  </header>
 
-  <!-- Sign-Up Section -->
-  <div id="signUpSection" style="display:block;">
-    <h3>Sign Up</h3>
-    <input type="text" id="signUpUsername" placeholder="Username"/>
-    <input type="password" id="signUpPassword" placeholder="Password"/>
-    <select id="userRole">
-      <option value="consumer">Consumer</option>
-      <option value="creator">Creator</option>
-    </select>
-    <button onclick="signUp()">Sign Up</button>
-    <p>Already have an account? <button onclick="showLogin()">Login</button></p>
-  </div>
-
-  <!-- Login Section -->
-  <div id="loginSection" style="display:none;">
-    <h3>Login</h3>
-    <input type="text" id="loginUsername" placeholder="Username"/>
-    <input type="password" id="loginPassword" placeholder="Password"/>
-    <button onclick="login()">Login</button>
-    <p>Don't have an account? <button onclick="showSignUp()">Sign Up</button></p>
-  </div>
-
-  <!-- Consumer Section (After Login) -->
-  <div id="consumerSection" style="display:none;">
-    <h3>Welcome Consumer</h3>
-    <div id="photos"></div>
-    <div id="interaction" style="display:none;">
-      <h3 id="selectedTitle"></h3>
-      <textarea id="commentBox" placeholder="Write a comment..."></textarea>
-      <input id="ratingBox" type="number" min="1" max="5" placeholder="Rating 1-5"/>
-      <button onclick="submitComment()">Submit Comment</button>
-      <button onclick="submitRating()">Submit Rating</button>
+  <div class="container">
+    <!-- Sign-Up Section -->
+    <div id="signUpSection" class="auth-container">
+      <div class="auth-box">
+        <h3>Create Your Account</h3>
+        <div class="form-group">
+          <label for="signUpUsername">Username</label>
+          <input type="text" id="signUpUsername" class="form-control" placeholder="Enter username"/>
+        </div>
+        <div class="form-group">
+          <label for="signUpPassword">Password</label>
+          <input type="password" id="signUpPassword" class="form-control" placeholder="Enter password"/>
+        </div>
+        <button onclick="signUp()" class="btn">Sign Up</button>
+        <p class="text-center mt-3">Already have an account? <span class="toggle-auth" onclick="showLogin()">Login</span></p>
+      </div>
     </div>
-  </div>
 
-  <!-- Creator Section (After Login) -->
-  <div id="creatorSection" style="display:none;">
-    <h3>Welcome Creator</h3>
-    <div>
-      <h4>Upload Photo</h4>
-      <input type="file" id="photoFile"/>
-      <input type="text" id="photoTitle" placeholder="Title"/>
-      <textarea id="photoCaption" placeholder="Caption"></textarea>
-      <input type="text" id="photoLocation" placeholder="Location"/>
-      <button onclick="uploadPhoto()">Upload Photo</button>
+    <!-- Login Section -->
+    <div id="loginSection" class="auth-container" style="display:none;">
+      <div class="auth-box">
+        <h3>Welcome Back</h3>
+        <div class="form-group">
+          <label for="loginUsername">Username</label>
+          <input type="text" id="loginUsername" class="form-control" placeholder="Enter username"/>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="Enter password"/>
+        </div>
+        <button onclick="login()" class="btn">Login</button>
+        <p class="text-center mt-3">Don't have an account? <span class="toggle-auth" onclick="showSignUp()">Sign Up</span></p>
+      </div>
     </div>
-    <div id="uploadedPhotos"></div>
+
+    <!-- Consumer Dashboard -->
+    <div id="consumerDashboard" class="dashboard">
+      <div class="dashboard-header">
+        <h2>Browse Photos</h2>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search photos..."/>
+          <button onclick="searchPhotos()">Search</button>
+        </div>
+      </div>
+      <div id="photos" class="photo-grid"></div>
+    </div>
+
+    <!-- Creator Dashboard -->
+    <div id="creatorDashboard" class="dashboard">
+      <div class="dashboard-header">
+        <h2>Creator Dashboard</h2>
+      </div>
+      
+      <div class="upload-form">
+        <h4>Upload New Photo</h4>
+        <div class="form-group">
+          <label for="photoFile">Photo</label>
+          <input type="file" id="photoFile" class="form-control"/>
+        </div>
+        <div class="form-group">
+          <label for="photoTitle">Title</label>
+          <input type="text" id="photoTitle" class="form-control" placeholder="Photo title"/>
+        </div>
+        <div class="form-group">
+          <label for="photoCaption">Caption</label>
+          <textarea id="photoCaption" class="form-control" placeholder="Photo caption" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="photoLocation">Location</label>
+          <input type="text" id="photoLocation" class="form-control" placeholder="Where was this taken?"/>
+        </div>
+        <button onclick="uploadPhoto()" class="btn">Upload Photo</button>
+      </div>
+      
+      <h3>Your Uploads</h3>
+      <div id="uploadedPhotos" class="photo-grid"></div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle"></h3>
+          <button class="close-modal" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <img id="modalImage" class="modal-photo" src="" alt=""/>
+          <div class="photo-meta">
+            <p id="modalCaption"></p>
+            <p id="modalLocation"></p>
+          </div>
+          
+          <div class="rating-section">
+            <h4>Rate this photo</h4>
+            <div class="star-rating" id="starRating">
+              <span class="star" data-value="1">★</span>
+              <span class="star" data-value="2">★</span>
+              <span class="star" data-value="3">★</span>
+              <span class="star" data-value="4">★</span>
+              <span class="star" data-value="5">★</span>
+            </div>
+            <button onclick="submitRating()" class="btn">Submit Rating</button>
+          </div>
+          
+          <div class="comments-section">
+            <h4>Comments</h4>
+            <div id="commentsList"></div>
+            <div class="form-group">
+              <textarea id="commentText" class="form-control" placeholder="Write a comment..." rows="3"></textarea>
+            </div>
+            <button onclick="submitComment()" class="btn">Post Comment</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script>
-    let selectedTitle = "";
-    let userRole = ""; // 'consumer' or 'creator'
+    let currentUser = null;
+    let selectedPhoto = null;
+    let currentRating = 0;
     const backend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
+
+    // DOM Ready
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check for existing token
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Validate token and show appropriate dashboard
+        validateToken(token);
+      }
+      
+      // Setup star rating
+      setupStarRating();
+    });
+
+    function setupStarRating() {
+      const stars = document.querySelectorAll('.star-rating .star');
+      stars.forEach(star => {
+        star.addEventListener('click', function() {
+          const value = parseInt(this.getAttribute('data-value'));
+          currentRating = value;
+          
+          // Update star display
+          stars.forEach((s, index) => {
+            if (index < value) {
+              s.classList.add('active');
+            } else {
+              s.classList.remove('active');
+            }
+          });
+        });
+      });
+    }
+
+    function validateToken(token) {
+      // In a real app, you'd validate the token with your backend
+      // For this example, we'll just decode it (not secure in production!)
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        currentUser = {
+          id: payload.user_id,
+          role: payload.role
+        };
+        
+        showDashboard(payload.role);
+      } catch (e) {
+        console.error("Invalid token", e);
+        localStorage.removeItem('token');
+      }
+    }
 
     function showSignUp() {
       document.getElementById('loginSection').style.display = 'none';
-      document.getElementById('signUpSection').style.display = 'block';
+      document.getElementById('signUpSection').style.display = 'flex';
     }
 
     function showLogin() {
       document.getElementById('signUpSection').style.display = 'none';
-      document.getElementById('loginSection').style.display = 'block';
+      document.getElementById('loginSection').style.display = 'flex';
+    }
+
+    function showDashboard(role) {
+      document.getElementById('signUpSection').style.display = 'none';
+      document.getElementById('loginSection').style.display = 'none';
+      
+      if (role === 'consumer') {
+        document.getElementById('consumerDashboard').style.display = 'block';
+        document.getElementById('creatorDashboard').style.display = 'none';
+        loadPhotos();
+      } else {
+        document.getElementById('creatorDashboard').style.display = 'block';
+        document.getElementById('consumerDashboard').style.display = 'none';
+        loadUploadedPhotos();
+      }
     }
 
     function signUp() {
-  const username = document.getElementById('signUpUsername').value;
-  const password = document.getElementById('signUpPassword').value;
-  const role = document.getElementById('userRole').value;
+      const username = document.getElementById('signUpUsername').value;
+      const password = document.getElementById('signUpPassword').value;
 
-  fetch(`${backend}/signup`, { // Removed trailing slash to match backend
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password, role })
-  }).then(res => res.json())
-    .then(data => {
-      if (data.token) {
-        alert("Signup successful. Please log in.");
-        showLogin();
-      } else {
-        console.log(data);
-        alert(data.error || "Signup failed");
-        
+      if (!username || !password) {
+        alert("Please fill in all fields");
+        return;
       }
-    }).catch(err => {
-      console.log(data);
-      alert("Signup error: " + err.message);
-    });
-}
 
-
-function login() {
-  const username = document.getElementById('loginUsername').value;
-  const password = document.getElementById('loginPassword').value;
-
-  fetch(`${backend}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  }).then(res => res.json())
-    .then(data => {
-      if (data.success && data.token) {
-        // 🔐 Store token in localStorage
-        localStorage.setItem('token', data.token);
-
-        userRole = data.role;
-        document.getElementById('loginSection').style.display = 'none';
-        if (userRole === 'consumer') {
-          document.getElementById('consumerSection').style.display = 'block';
-          loadPhotos();
-        } else {
-          document.getElementById('creatorSection').style.display = 'block';
+      fetch(`${backend}/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => { throw err; });
         }
-      } else {
-        alert("Login failed: " + (data.error || "Unknown error"));
-      }
-    }).catch(err => {
-      alert("Login error: " + err.message);
-    });
-}
-
-
-    function loadPhotos() {
-      fetch(`${backend}/photos`)
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById("photos");
-          data.forEach(photo => {
-            const div = document.createElement("div");
-            div.innerHTML = `
-              <img src="${photo.blob_url}" alt="${photo.title}"/>
-              <p><b>${photo.title}</b> - ${photo.caption} (${photo.location})</p>
-              <button onclick="selectPhoto('${photo.title}')">Comment/Rate</button>
-            `;
-            container.appendChild(div);
-          });
-        });
+        return res.json();
+      })
+      .then(data => {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          validateToken(data.token);
+        }
+      })
+      .catch(err => {
+        alert(err.error || "Signup failed. Please try again.");
+      });
     }
 
-    function selectPhoto(title) {
-      selectedTitle = title;
-      document.getElementById("selectedTitle").innerText = `Commenting/Rating on: ${title}`;
-      document.getElementById("interaction").style.display = 'block';
+    function login() {
+      const username = document.getElementById('loginUsername').value;
+      const password = document.getElementById('loginPassword').value;
+
+      fetch(`${backend}/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => { throw err; });
+        }
+        return res.json();
+      })
+      .then(data => {
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          validateToken(data.token);
+        }
+      })
+      .catch(err => {
+        alert(err.error || "Login failed. Please try again.");
+      });
+    }
+
+    function logout() {
+      localStorage.removeItem('token');
+      location.reload();
+    }
+
+    function loadPhotos() {
+      const token = localStorage.getItem('token');
+      
+      fetch(`${backend}/photos`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("photos");
+        container.innerHTML = "";
+        
+        if (data.length === 0) {
+          container.innerHTML = "<p>No photos found. Check back later!</p>";
+          return;
+        }
+        
+        data.forEach(photo => {
+          const card = document.createElement("div");
+          card.className = "photo-card";
+          card.innerHTML = `
+            <img src="${photo.blob_url}" alt="${photo.title}"/>
+            <div class="photo-info">
+              <h3>${photo.title}</h3>
+              <p class="photo-meta">${photo.caption}</p>
+              <p class="photo-meta"><small>${photo.location || 'Location not specified'}</small></p>
+              <div class="photo-actions">
+                <button class="btn" onclick="viewPhotoDetails('${photo.title}', '${photo.blob_url}', '${photo.caption}', '${photo.location || ''}')">View Details</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error("Error loading photos:", err);
+      });
+    }
+
+    function searchPhotos() {
+      const query = document.getElementById('searchInput').value;
+      const token = localStorage.getItem('token');
+      
+      if (!query) {
+        loadPhotos();
+        return;
+      }
+      
+      fetch(`${backend}/photos/search?q=${encodeURIComponent(query)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("photos");
+        container.innerHTML = "";
+        
+        if (data.length === 0) {
+          container.innerHTML = "<p>No photos match your search.</p>";
+          return;
+        }
+        
+        data.forEach(photo => {
+          const card = document.createElement("div");
+          card.className = "photo-card";
+          card.innerHTML = `
+            <img src="${photo.blob_url}" alt="${photo.title}"/>
+            <div class="photo-info">
+              <h3>${photo.title}</h3>
+              <p class="photo-meta">${photo.caption}</p>
+              <p class="photo-meta"><small>${photo.location || 'Location not specified'}</small></p>
+              <div class="photo-actions">
+                <button class="btn" onclick="viewPhotoDetails('${photo.title}', '${photo.blob_url}', '${photo.caption}', '${photo.location || ''}')">View Details</button>
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+      })
+      .catch(err => {
+        console.error("Error searching photos:", err);
+      });
+    }
+
+    function viewPhotoDetails(title, imageUrl, caption, location) {
+      selectedPhoto = title;
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalImage').src = imageUrl;
+      document.getElementById('modalCaption').textContent = caption;
+      document.getElementById('modalLocation').textContent = location ? `📍 ${location}` : '';
+      
+      // Load comments for this photo
+      loadComments(title);
+      
+      // Show modal
+      document.getElementById('photoModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('photoModal').style.display = 'none';
+      currentRating = 0;
+      // Reset stars
+      document.querySelectorAll('.star-rating .star').forEach(star => {
+        star.classList.remove('active');
+      });
+    }
+
+    function loadComments(photoTitle) {
+      // In a real app, you'd fetch comments from your backend
+      // For now, we'll just show a placeholder
+      document.getElementById('commentsList').innerHTML = "<p>Loading comments...</p>";
     }
 
     function submitComment() {
-      const comment = document.getElementById("commentBox").value;
-      fetch(`${backend}/photos/${selectedTitle}/comment`, {
+      const commentText = document.getElementById('commentText').value;
+      const token = localStorage.getItem('token');
+      
+      if (!commentText) {
+        alert("Please enter a comment");
+        return;
+      }
+      
+      fetch(`${backend}/photos/${selectedPhoto}/comment`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: "ConsumerUser", comment })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ text: commentText })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert("Comment posted successfully");
+        document.getElementById('commentText').value = '';
+        loadComments(selectedPhoto);
+      })
+      .catch(err => {
+        alert("Error posting comment: " + err.message);
       });
     }
 
     function submitRating() {
-      const rating = document.getElementById("ratingBox").value;
-      fetch(`${backend}/photos/${selectedTitle}/rate`, {
+      const token = localStorage.getItem('token');
+      
+      if (currentRating === 0) {
+        alert("Please select a rating");
+        return;
+      }
+      
+      fetch(`${backend}/photos/${selectedPhoto}/rate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user: "ConsumerUser", rating: parseInt(rating) })
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ rating: currentRating })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert("Rating submitted successfully");
+      })
+      .catch(err => {
+        alert("Error submitting rating: " + err.message);
       });
     }
 
     function uploadPhoto() {
-  const file = document.getElementById("photoFile").files[0];
-  const title = document.getElementById("photoTitle").value;
-  const caption = document.getElementById("photoCaption").value;
-  const location = document.getElementById("photoLocation").value;
+      const file = document.getElementById("photoFile").files[0];
+      const title = document.getElementById("photoTitle").value;
+      const caption = document.getElementById("photoCaption").value;
+      const location = document.getElementById("photoLocation").value;
+      const token = localStorage.getItem('token');
 
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("title", title);
-  formData.append("caption", caption);
-  formData.append("location", location);
+      if (!file || !title) {
+        alert("Please select a file and provide a title");
+        return;
+      }
 
-  const token = localStorage.getItem('token'); // 🔐 Get the token
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("title", title);
+      formData.append("caption", caption);
+      formData.append("location", location);
 
-  fetch(`${backend}/upload`, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${token}` // 👈 Send token
-    },
-    body: formData
-  })
-    .then(res => res.json())
-    .then(data => {
-      alert(data.message);
-      loadUploadedPhotos();
-    })
-    .catch(err => {
-      alert("Upload error: " + err.message);
-    });
-}
+      fetch(`${backend}/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      })
+      .then(res => {
+        if (!res.ok) {
+          return res.json().then(err => { throw err; });
+        }
+        return res.json();
+      })
+      .then(data => {
+        alert("Photo uploaded successfully!");
+        // Clear form
+        document.getElementById("photoFile").value = "";
+        document.getElementById("photoTitle").value = "";
+        document.getElementById("photoCaption").value = "";
+        document.getElementById("photoLocation").value = "";
+        
+        // Refresh photo list
+        loadUploadedPhotos();
+      })
+      .catch(err => {
+        alert(err.error || "Error uploading photo");
+      });
+    }
 
     function loadUploadedPhotos() {
-      fetch(`${backend}/photos`)
-        .then(res => res.json())
-        .then(data => {
-          const container = document.getElementById("uploadedPhotos");
-          container.innerHTML = "";
-          data.forEach(photo => {
-            const div = document.createElement("div");
-            div.innerHTML = `
-              <img src="${photo.blob_url}" alt="${photo.title}"/>
-              <p><b>${photo.title}</b> - ${photo.caption} (${photo.location})</p>
-            `;
-            container.appendChild(div);
-          });
+      const token = localStorage.getItem('token');
+      
+      fetch(`${backend}/photos`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById("uploadedPhotos");
+        container.innerHTML = "";
+        
+        if (data.length === 0) {
+          container.innerHTML = "<p>You haven't uploaded any photos yet.</p>";
+          return;
+        }
+        
+        data.forEach(photo => {
+          const card = document.createElement("div");
+          card.className = "photo-card";
+          card.innerHTML = `
+            <img src="${photo.blob_url}" alt="${photo.title}"/>
+            <div class="photo-info">
+              <h3>${photo.title}</h3>
+              <p class="photo-meta">${photo.caption}</p>
+              <p class="photo-meta"><small>${photo.location || 'Location not specified'}</small></p>
+            </div>
+          `;
+          container.appendChild(card);
         });
+      })
+      .catch(err => {
+        console.error("Error loading uploaded photos:", err);
+      });
     }
   </script>
 </body>
