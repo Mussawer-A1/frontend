@@ -1,6 +1,6 @@
 const backend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
 
-// Make functions globally available
+// Global functions
 window.showSignUp = function() {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('signUpSection').style.display = 'flex';
@@ -25,16 +25,12 @@ window.signUp = function() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password })
   })
-  .then(res => {
-    if (!res.ok) {
-      return res.json().then(err => { throw err; });
-    }
-    return res.json();
-  })
+  .then(handleResponse)
   .then(data => {
     if (data.token) {
       localStorage.setItem('token', data.token);
-      redirectToDashboard(data.role || 'consumer'); // Default to consumer if role not specified
+      // Don't redirect here - let the token check handle it
+      window.location.reload();
     }
   })
   .catch(err => {
@@ -51,16 +47,12 @@ window.login = function() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password })
   })
-  .then(res => {
-    if (!res.ok) {
-      return res.json().then(err => { throw err; });
-    }
-    return res.json();
-  })
+  .then(handleResponse)
   .then(data => {
     if (data.token) {
       localStorage.setItem('token', data.token);
-      redirectToDashboard(data.role);
+      // Don't redirect here - let the token check handle it
+      window.location.reload();
     }
   })
   .catch(err => {
@@ -73,19 +65,57 @@ window.logout = function() {
   window.location.href = 'index.html';
 };
 
-function redirectToDashboard(role) {
-  if (role === 'consumer') {
-    window.location.href = 'consumer.html';
-  } else if (role === 'creator') {
-    window.location.href = 'creator.html';
+// Helper function to handle fetch responses
+function handleResponse(res) {
+  if (!res.ok) {
+    return res.json().then(err => { throw err; });
+  }
+  return res.json();
+}
+
+// Token validation and redirection
+function checkAuthState() {
+  const token = localStorage.getItem('token');
+  const currentPage = window.location.pathname.split('/').pop();
+  
+  if (!token) {
+    if (currentPage !== 'index.html') {
+      window.location.href = 'index.html';
+    }
+    return;
+  }
+
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    const now = Date.now() / 1000; // Convert to seconds
+    
+    // Check token expiration
+    if (payload.exp < now) {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
+      return;
+    }
+
+    // Prevent redirection loops
+    if (payload.role === 'consumer' && currentPage !== 'consumer.html') {
+      window.location.href = 'consumer.html';
+    } else if (payload.role === 'creator' && currentPage !== 'creator.html') {
+      window.location.href = 'creator.html';
+    } else if (!['consumer.html', 'creator.html'].includes(currentPage)) {
+      // Default redirect for authenticated users
+      window.location.href = payload.role === 'consumer' ? 'consumer.html' : 'creator.html';
+    }
+  } catch (e) {
+    localStorage.removeItem('token');
+    if (currentPage !== 'index.html') {
+      window.location.href = 'index.html';
+    }
   }
 }
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-  const token = localStorage.getItem('token');
-  
-  // Set up event listeners for buttons that exist on this page
+  // Set up event listeners
   if (document.getElementById('signUpBtn')) {
     document.getElementById('signUpBtn').addEventListener('click', signUp);
   }
@@ -99,24 +129,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('showSignUpBtn').addEventListener('click', showSignUp);
   }
 
-  // Check authentication status
-  if (token) {
-    try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      
-      // Check token expiration (payload.exp is in seconds)
-      if (payload.exp && payload.exp * 1000 < Date.now()) {
-        localStorage.removeItem('token');
-        return;
-      }
-      
-      // Redirect if valid token exists
-      if (payload.role) {
-        redirectToDashboard(payload.role);
-      }
-    } catch (e) {
-      console.error("Token validation error:", e);
-      localStorage.removeItem('token');
-    }
-  }
+  // Check auth state
+  checkAuthState();
 });
