@@ -1,5 +1,5 @@
 console.log("consumer.js loaded");
-const backend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
+const consumerBackend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
 let selectedPhoto = null;
 let currentRating = 0;
 
@@ -38,7 +38,7 @@ function setupStarRating() {
 async function loadPhotos() {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${backend}/photos`, {
+    const response = await fetch(`${consumerBackend}/photos`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -116,7 +116,7 @@ function closeModal() {
 async function loadComments(photoTitle) {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${backend}/photos/${encodeURIComponent(photoTitle)}/comments`, {
+    const response = await fetch(`${consumerconsumerBackend}/photos/${encodeURIComponent(photoTitle)}/comments`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -167,7 +167,7 @@ async function submitComment() {
   }
   
   try {
-    const response = await fetch(`${backend}/photos/${encodeURIComponent(selectedPhoto)}/comment`, {
+    const response = await fetch(`${consumerconsumerBackend}/photos/${encodeURIComponent(selectedPhoto)}/comment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -198,7 +198,7 @@ async function submitRating() {
   }
   
   try {
-    const response = await fetch(`${backend}/photos/${encodeURIComponent(selectedPhoto)}/rate`, {
+    const response = await fetch(`${consumerBackend}/photos/${encodeURIComponent(selectedPhoto)}/rate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -228,7 +228,7 @@ async function searchPhotos() {
   }
   
   try {
-    const response = await fetch(`${backend}/photos/search?q=${encodeURIComponent(query)}`, {
+    const response = await fetch(`${consumerBackend}/photos/search?q=${encodeURIComponent(query)}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
