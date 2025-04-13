@@ -1,4 +1,5 @@
-const backend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
+cosnole.log("creator.js loaded");
+const creatorBackend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
 
 document.addEventListener('DOMContentLoaded', function() {
   const token = localStorage.getItem('token');
@@ -28,7 +29,7 @@ function uploadPhoto() {
   formData.append("caption", caption);
   formData.append("location", location);
 
-  fetch(`${backend}/upload`, {
+  fetch(`${creatorBackend}/upload`, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`
@@ -58,7 +59,7 @@ function uploadPhoto() {
 function loadUploadedPhotos() {
   const token = localStorage.getItem('token');
   
-  fetch(`${backend}/photos`, {
+  fetch(`${creatorBackend}/photos`, {
     headers: {
       'Authorization': `Bearer ${token}`
     }
