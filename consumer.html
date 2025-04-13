@@ -10,7 +10,7 @@
 <body>
   <header>
     <h1>📸 Photo Sharing App - Consumer</h1>
-    <button class="logout-btn" onclick="logout()">Logout</button>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
   </header>
 
   <div class="container">
@@ -19,7 +19,7 @@
         <h2>Browse Photos</h2>
         <div class="search-bar">
           <input type="text" id="searchInput" placeholder="Search photos..."/>
-          <button onclick="searchPhotos()">Search</button>
+          <button id="searchBtn">Search</button>
         </div>
       </div>
       <div id="photos" class="photo-grid"></div>
@@ -27,10 +27,51 @@
 
     <!-- Photo Modal -->
     <div id="photoModal" class="modal">
-      <!-- Modal content same as before -->
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle"></h3>
+          <button class="close-modal" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <img id="modalImage" class="modal-photo" src="" alt=""/>
+          <div class="photo-meta">
+            <p id="modalCaption"></p>
+            <p id="modalLocation"></p>
+          </div>
+          
+          <div class="rating-section">
+            <h4>Rate this photo</h4>
+            <div class="star-rating" id="starRating">
+              <span class="star" data-value="1">★</span>
+              <span class="star" data-value="2">★</span>
+              <span class="star" data-value="3">★</span>
+              <span class="star" data-value="4">★</span>
+              <span class="star" data-value="5">★</span>
+            </div>
+            <button id="submitRatingBtn" class="btn">Submit Rating</button>
+          </div>
+          
+          <div class="comments-section">
+            <h4>Comments</h4>
+            <div id="commentsList"></div>
+            <div class="form-group">
+              <textarea id="commentText" class="form-control" placeholder="Write a comment..." rows="3"></textarea>
+            </div>
+            <button id="submitCommentBtn" class="btn">Post Comment</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script src="scripts/consumer.js"></script>
+  <script src="scripts/auth.js" defer></script>
+  <script src="scripts/consumer.js" defer></script>
+  <script>
+    // Ensure logout is available
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
+    });
+  </script>
 </body>
 </html>

@@ -1,16 +1,17 @@
 const backend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
 
-function showSignUp() {
+// Make functions globally available
+window.showSignUp = function() {
   document.getElementById('loginSection').style.display = 'none';
   document.getElementById('signUpSection').style.display = 'flex';
-}
+};
 
-function showLogin() {
+window.showLogin = function() {
   document.getElementById('signUpSection').style.display = 'none';
   document.getElementById('loginSection').style.display = 'flex';
-}
+};
 
-function signUp() {
+window.signUp = function() {
   const username = document.getElementById('signUpUsername').value;
   const password = document.getElementById('signUpPassword').value;
 
@@ -33,15 +34,15 @@ function signUp() {
   .then(data => {
     if (data.token) {
       localStorage.setItem('token', data.token);
-      redirectToDashboard(data.role);
+      redirectToDashboard(data.role || 'consumer'); // Default to consumer if role not specified
     }
   })
   .catch(err => {
     alert(err.error || "Signup failed. Please try again.");
   });
-}
+};
 
-function login() {
+window.login = function() {
   const username = document.getElementById('loginUsername').value;
   const password = document.getElementById('loginPassword').value;
 
@@ -65,7 +66,12 @@ function login() {
   .catch(err => {
     alert(err.error || "Login failed. Please try again.");
   });
-}
+};
+
+window.logout = function() {
+  localStorage.removeItem('token');
+  window.location.href = 'index.html';
+};
 
 function redirectToDashboard(role) {
   if (role === 'consumer') {
@@ -75,19 +81,41 @@ function redirectToDashboard(role) {
   }
 }
 
-function logout() {
-  localStorage.removeItem('token');
-  window.location.href = 'index.html';
-}
-
-// Check if already logged in
+// Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
   const token = localStorage.getItem('token');
+  
+  // Set up event listeners for buttons that exist on this page
+  if (document.getElementById('signUpBtn')) {
+    document.getElementById('signUpBtn').addEventListener('click', signUp);
+  }
+  if (document.getElementById('loginBtn')) {
+    document.getElementById('loginBtn').addEventListener('click', login);
+  }
+  if (document.getElementById('showLoginBtn')) {
+    document.getElementById('showLoginBtn').addEventListener('click', showLogin);
+  }
+  if (document.getElementById('showSignUpBtn')) {
+    document.getElementById('showSignUpBtn').addEventListener('click', showSignUp);
+  }
+
+  // Check authentication status
   if (token) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      redirectToDashboard(payload.role);
+      
+      // Check token expiration (payload.exp is in seconds)
+      if (payload.exp && payload.exp * 1000 < Date.now()) {
+        localStorage.removeItem('token');
+        return;
+      }
+      
+      // Redirect if valid token exists
+      if (payload.role) {
+        redirectToDashboard(payload.role);
+      }
     } catch (e) {
+      console.error("Token validation error:", e);
       localStorage.removeItem('token');
     }
   }
