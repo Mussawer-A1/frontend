@@ -1,244 +1,77 @@
-const backend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
-let selectedPhoto = null;
-let currentRating = 0;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Sharing App - Consumer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="styles/consumer.css" rel="stylesheet">
+</head>
+<body>
+  <header>
+    <h1>📸 Photo Sharing App - Consumer</h1>
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </header>
 
-// Initialize the page when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    window.location.href = 'index.html';
-    return;
-  }
-  
-  // Setup all event listeners
-  setupEventListeners();
-  
-  // Initial load of photos
-  loadPhotos();
-});
-
-function setupEventListeners() {
-  // Star rating setup
-  const stars = document.querySelectorAll('.star-rating .star');
-  stars.forEach(star => {
-    star.addEventListener('click', function() {
-      const value = parseInt(this.getAttribute('data-value'));
-      currentRating = value;
-      
-      stars.forEach((s, index) => {
-        s.classList.toggle('active', index < value);
-      });
-    });
-  });
-  
-  // Search button
-  document.getElementById('searchBtn').addEventListener('click', searchPhotos);
-  
-  // Modal close button
-  document.getElementById('closeModalBtn').addEventListener('click', closeModal);
-  
-  // Comment submission
-  document.getElementById('submitCommentBtn').addEventListener('click', submitComment);
-  
-  // Rating submission
-  document.getElementById('submitRatingBtn').addEventListener('click', submitRating);
-}
-
-async function loadPhotos() {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${backend}/photos`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    displayPhotos(data);
-  } catch (err) {
-    console.error("Error loading photos:", err);
-    alert("Failed to load photos. Please try again.");
-  }
-}
-
-function displayPhotos(photos) {
-  const container = document.getElementById("photos");
-  if (!container) return;
-  
-  container.innerHTML = "";
-  
-  if (!photos || photos.length === 0) {
-    container.innerHTML = "<p>No photos found. Check back later!</p>";
-    return;
-  }
-  
-  photos.forEach(photo => {
-    const card = document.createElement("div");
-    card.className = "photo-card";
-    card.innerHTML = `
-      <img src="${photo.blob_url}" alt="${photo.title}" loading="lazy"/>
-      <div class="photo-info">
-        <h3>${photo.title}</h3>
-        <p class="photo-meta">${photo.caption || ''}</p>
-        <p class="photo-meta"><small>${photo.location || 'Location not specified'}</small></p>
-        <div class="photo-actions">
-          <button class="btn view-details-btn">View Details</button>
+  <div class="container">
+    <div class="dashboard">
+      <div class="dashboard-header">
+        <h2>Browse Photos</h2>
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search photos..."/>
+          <button id="searchBtn">Search</button>
         </div>
       </div>
-    `;
-    container.appendChild(card);
-    
-    // Add click handler to the view details button
-    card.querySelector('.view-details-btn').addEventListener('click', () => {
-      viewPhotoDetails(photo);
+      <div id="photos" class="photo-grid"></div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div id="photoModal" class="modal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 id="modalTitle"></h3>
+          <button class="close-modal" id="closeModalBtn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <img id="modalImage" class="modal-photo" src="" alt=""/>
+          <div class="photo-meta">
+            <p id="modalCaption"></p>
+            <p id="modalLocation"></p>
+          </div>
+          
+          <div class="rating-section">
+            <h4>Rate this photo</h4>
+            <div class="star-rating" id="starRating">
+              <span class="star" data-value="1">★</span>
+              <span class="star" data-value="2">★</span>
+              <span class="star" data-value="3">★</span>
+              <span class="star" data-value="4">★</span>
+              <span class="star" data-value="5">★</span>
+            </div>
+            <button id="submitRatingBtn" class="btn">Submit Rating</button>
+          </div>
+          
+          <div class="comments-section">
+            <h4>Comments</h4>
+            <div id="commentsList"></div>
+            <div class="form-group">
+              <textarea id="commentText" class="form-control" placeholder="Write a comment..." rows="3"></textarea>
+            </div>
+            <button id="submitCommentBtn" class="btn">Post Comment</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/auth.js" defer></script>
+  <script src="scripts/consumer.js" defer></script>
+  <script>
+    // Ensure logout is available
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
     });
-  });
-}
-
-function viewPhotoDetails(photo) {
-  selectedPhoto = photo.title;
-  document.getElementById('modalTitle').textContent = photo.title;
-  document.getElementById('modalImage').src = photo.blob_url;
-  document.getElementById('modalCaption').textContent = photo.caption || '';
-  document.getElementById('modalLocation').textContent = photo.location ? `📍 ${photo.location}` : '';
-  
-  loadComments(photo.title);
-  document.getElementById('photoModal').style.display = 'flex';
-}
-
-function closeModal() {
-  document.getElementById('photoModal').style.display = 'none';
-  currentRating = 0;
-  // Reset stars
-  document.querySelectorAll('.star-rating .star').forEach(star => {
-    star.classList.remove('active');
-  });
-}
-
-async function loadComments(photoTitle) {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${backend}/photos/${encodeURIComponent(photoTitle)}/comments`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) throw new Error('Failed to load comments');
-
-    const comments = await response.json();
-    displayComments(comments);
-  } catch (err) {
-    console.error("Error loading comments:", err);
-    document.getElementById('commentsList').innerHTML = "<p>Error loading comments</p>";
-  }
-}
-
-function displayComments(comments) {
-  const container = document.getElementById('commentsList');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  if (!comments || comments.length === 0) {
-    container.innerHTML = "<p>No comments yet. Be the first to comment!</p>";
-    return;
-  }
-  
-  comments.forEach(comment => {
-    const commentDiv = document.createElement('div');
-    commentDiv.className = 'comment';
-    commentDiv.innerHTML = `
-      <div class="comment-user">${comment.username || 'Anonymous'}</div>
-      <div class="comment-text">${comment.text}</div>
-      <small>${new Date(comment.timestamp).toLocaleString()}</small>
-    `;
-    container.appendChild(commentDiv);
-  });
-}
-
-async function submitComment() {
-  const commentText = document.getElementById('commentText').value;
-  const token = localStorage.getItem('token');
-  
-  if (!commentText) {
-    alert("Please enter a comment");
-    return;
-  }
-  
-  try {
-    const response = await fetch(`${backend}/photos/${encodeURIComponent(selectedPhoto)}/comment`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ text: commentText })
-    });
-
-    if (!response.ok) throw new Error('Failed to post comment');
-
-    document.getElementById('commentText').value = '';
-    loadComments(selectedPhoto);
-    alert("Comment posted successfully");
-  } catch (err) {
-    console.error("Error posting comment:", err);
-    alert("Error posting comment: " + err.message);
-  }
-}
-
-async function submitRating() {
-  const token = localStorage.getItem('token');
-  
-  if (currentRating === 0) {
-    alert("Please select a rating");
-    return;
-  }
-  
-  try {
-    const response = await fetch(`${backend}/photos/${encodeURIComponent(selectedPhoto)}/rate`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({ rating: currentRating })
-    });
-
-    if (!response.ok) throw new Error('Failed to submit rating');
-
-    alert("Rating submitted successfully");
-  } catch (err) {
-    console.error("Error submitting rating:", err);
-    alert("Error submitting rating: " + err.message);
-  }
-}
-
-async function searchPhotos() {
-  const query = document.getElementById('searchInput').value;
-  const token = localStorage.getItem('token');
-  
-  try {
-    const url = query 
-      ? `${backend}/photos/search?q=${encodeURIComponent(query)}`
-      : `${backend}/photos`;
-      
-    const response = await fetch(url, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) throw new Error('Failed to search photos');
-
-    const results = await response.json();
-    displayPhotos(results);
-  } catch (err) {
-    console.error("Error searching photos:", err);
-    alert("Error searching photos");
-  }
-}
+  </script>
+</body>
+</html>

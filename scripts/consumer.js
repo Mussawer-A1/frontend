@@ -1,3 +1,4 @@
+console.log("consumer.js loaded");
 const backend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
 let selectedPhoto = null;
 let currentRating = 0;
@@ -35,31 +36,25 @@ function setupStarRating() {
 }
 
 async function loadPhotos() {
-    try {
-      const token = localStorage.getItem('token');
-      console.log("Attempting to load photos..."); // Debug log
-      console.log("Using token:", token); // Debug log
-      
-      const response = await fetch(`${backend}/photos`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-  
-      console.log("Response status:", response.status); // Debug log
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch photos: ${response.status}`);
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${backend}/photos`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
       }
-  
-      const data = await response.json();
-      console.log("Received photos data:", data); // Debug log
-      displayPhotos(data);
-    } catch (err) {
-      console.error("Error loading photos:", err);
-      alert("Failed to load photos. Please try again.");
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch photos');
     }
+
+    const data = await response.json();
+    displayPhotos(data);
+  } catch (err) {
+    console.error("Error loading photos:", err);
+    alert("Failed to load photos. Please try again.");
   }
+}
 
 function displayPhotos(photos) {
   const container = document.getElementById("photos");
