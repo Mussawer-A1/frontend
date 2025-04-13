@@ -1,3 +1,4 @@
+console.log("auth js loaded");
 const backend = "https://photosapp-insta-gca8aafdbygffjbq.canadacentral-01.azurewebsites.net";
 
 // Global functions
