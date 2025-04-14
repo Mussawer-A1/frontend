@@ -114,25 +114,28 @@ function closeModal() {
 }
 
 async function loadComments(photoTitle) {
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch(`${consumerBackend}/photos/${encodeURIComponent(photoTitle)}/comments`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${consumerBackend}/photos/${encodeURIComponent(photoTitle)}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to load comments');
       }
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to load comments');
+  
+      const data = await response.json();
+      displayComments(data.comments);
+      
+      // OPTIONAL: if you want to handle ratings as well
+      document.getElementById('photoAverageRating').innerText = `Average Rating: ${data.average_rating ? data.average_rating.toFixed(1) : "No ratings yet"}`;
+    } catch (err) {
+      console.error("Error loading comments:", err);
+      document.getElementById('commentsList').innerHTML = "<p>Error loading comments</p>";
     }
-
-    const comments = await response.json();
-    displayComments(comments);
-  } catch (err) {
-    console.error("Error loading comments:", err);
-    document.getElementById('commentsList').innerHTML = "<p>Error loading comments</p>";
   }
-}
 
 function displayComments(comments) {
   const container = document.getElementById('commentsList');
