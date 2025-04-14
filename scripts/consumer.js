@@ -116,7 +116,7 @@ function closeModal() {
 async function loadComments(photoTitle) {
   try {
     const token = localStorage.getItem('token');
-    const response = await fetch(`${consumerconsumerBackend}/photos/${encodeURIComponent(photoTitle)}/comments`, {
+    const response = await fetch(`${consumerBackend}/photos/${encodeURIComponent(photoTitle)}/comments`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
@@ -167,7 +167,7 @@ async function submitComment() {
   }
   
   try {
-    const response = await fetch(`${consumerconsumerBackend}/photos/${encodeURIComponent(selectedPhoto)}/comment`, {
+    const response = await fetch(`${consumerBackend}/photos/${encodeURIComponent(selectedPhoto)}/comment`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
