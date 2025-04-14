@@ -50,6 +50,8 @@
             </div>
             <button id="submitRatingBtn" class="btn">Submit Rating</button>
           </div>
+          <p id="photoAverageRating">Average Rating: Loading...</p>
+
           
           <div class="comments-section">
             <h4>Comments</h4>
@@ -68,6 +70,28 @@
     document.getElementById('logoutBtn').addEventListener('click', () => {
       localStorage.removeItem('token');
       window.location.href = 'index.html';
+    });
+  </script>
+  <script>
+    // Logout functionality
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      localStorage.removeItem('token');
+      window.location.href = 'index.html';
+    });
+  
+    // Modal close functionality
+    const modal = document.getElementById('photoModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+  
+    closeModalBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+  
+    // Optional: close modal if user clicks outside modal-content
+    window.addEventListener('click', (event) => {
+      if (event.target === modal) {
+        modal.style.display = 'none';
+      }
     });
   </script>
   <script src="scripts/auth.js" defer></script>
