@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Setup search functionality
   document.getElementById('searchBtn')?.addEventListener('click', searchPhotos);
+  document.getElementById('submitCommentBtn')?.addEventListener('click', submitComment);
+  document.getElementById('submitRatingBtn')?.addEventListener('click', submitRating);
+
 });
 
 function setupStarRating() {
