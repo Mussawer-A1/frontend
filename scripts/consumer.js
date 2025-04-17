@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', function() {
     window.location.href = 'index.html';
     return;
   }
+const username = getUsernameFromToken(token);
+document.getElementById('user').textContent = `📸 Welcome, ${username}`;
+
   
   setupStarRating();
   loadPhotos();
@@ -19,6 +22,19 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('submitRatingBtn')?.addEventListener('click', submitRating);
 
 });
+
+
+
+function getUsernameFromToken(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.username || payload.name || payload.sub || "Consumer";
+  } catch (e) {
+    console.error("Failed to decode token", e);
+    return "Consumer";
+  }
+}
+
 
 function setupStarRating() {
   const stars = document.querySelectorAll('.star-rating .star');
