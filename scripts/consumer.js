@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return;
   }
 const username = getUsernameFromToken(token);
-document.getElementById('user').textContent = `📸 Welcome,Nigga`;
+document.getElementById('user').textContent = `📸 Welcome, ${username}`;
 
   
   setupStarRating();
@@ -28,7 +28,7 @@ document.getElementById('user').textContent = `📸 Welcome,Nigga`;
 function getUsernameFromToken(token) {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.username || payload.name || payload.sub || "Consumer";
+    return payload.user_id || "Consumer";
   } catch (e) {
     console.error("Failed to decode token", e);
     return "Consumer";
