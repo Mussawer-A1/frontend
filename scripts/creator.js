@@ -18,7 +18,7 @@ document.getElementById('user').textContent = `Photo Sharing App - ${username}`;
 function getUsernameFromToken(token) {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
-    return payload.user_id || "Creator";
+    return payload.username || "Creator";
   } catch (e) {
     console.error("Failed to decode token", e);
     return "Consumer";
