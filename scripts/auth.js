@@ -86,9 +86,6 @@ function checkAuthState() {
     return;
   }
 
-  if (token) {
-    window.location.href = 'index.html#loginSection';
-  }
 
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
