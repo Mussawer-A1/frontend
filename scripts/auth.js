@@ -86,6 +86,10 @@ function checkAuthState() {
     return;
   }
 
+  if (token) {
+    window.location.href = 'index.html#loginSection';
+  }
+
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
     const now = Date.now() / 1000; // Convert to seconds
