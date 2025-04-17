@@ -29,9 +29,12 @@ window.signUp = function() {
   .then(handleResponse)
   .then(data => {
     if (data.token) {
-      localStorage.setItem('token', data.token);
-      // Don't redirect here - let the token check handle it
-      window.location.reload();
+      alert("Signup successful! You can now log in.");
+      // Clear sign-up fields
+      document.getElementById('signUpUsername').value = '';
+      document.getElementById('signUpPassword').value = '';
+      // Switch to login section
+      showLogin();
     }
   })
   .catch(err => {
